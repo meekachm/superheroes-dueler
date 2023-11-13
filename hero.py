@@ -25,32 +25,30 @@ class Hero:
         # when a hero is created, their current health is
         # always the same as their starting health (no damage taken yet!)
         self.current_health = starting_health
+        self.deaths = 0
+        self.kills = 0
   
     def fight(self, opponent):
         ''' Current Hero will take turns fighting the opponent hero passed in.
         '''
-        # Phase 0: Check if at least one hero has abilities
         if not self.abilities and not opponent.abilities:
             print("Draw")
             return
 
-        # Phase 1: Start the fighting loop until a hero has won
         while self.is_alive() and opponent.is_alive():
-            # Phase 2: Both heroes attack and take damage
-            self_attack = self.attack()
-            opponent_attack = opponent.attack()
-            
-            # Take damage from each other's attack
-            self.take_damage(opponent_attack)
-            opponent.take_damage(self_attack)
-            
-            # Phase 3: Check if either hero is alive
-            if not self.is_alive():
-                print(f"{opponent.name} won!")
-                return
-            elif not opponent.is_alive():
+            self.take_damage(opponent.attack())
+            if not opponent.is_alive():
+                opponent.add_death(1)
+                self.add_kill(1)
                 print(f"{self.name} won!")
-                return
+                return opponent
+
+            opponent.take_damage(self.attack())
+            if not self.is_alive():
+                self.add_death(1)
+                opponent.add_kill(1)
+                print(f"{opponent.name} won!")
+                return self
 
     def add_ability(self, ability):
         ''' Add ability to abilities list '''
@@ -114,7 +112,15 @@ class Hero:
     def add_weapon(self, weapon):
         '''Add weapon to self.abilities'''
         self.abilities.append(weapon)
-    
+
+    def add_kill(self, num_kills):
+        ''' Update self.kills by num_kills amount'''
+        self.kills += num_kills
+
+    def add_death(self, num_deaths):
+        ''' Update deaths with num_deaths'''
+        self.deaths += num_deaths
+            
 
 
 if __name__ == "__main__":
